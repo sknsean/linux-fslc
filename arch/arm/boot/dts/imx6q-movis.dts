@@ -210,18 +210,34 @@
 	soc-supply = <&sw1c_reg>;
 };*/
 
+&ecspi1 {
+	fsl,spi-num-chipselects = <0>;
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_ecspi1>;
+
+	adc: ad7476a@0 {
+		compatible = "adi,ad7476a";
+		reg = <0>;
+		spi-max-frequency = <1000000>;
+		spi-cpha;
+		spi-cpol;
+		vcc_supply = <&adc_vref>;
+	};
+};
+
 &ecspi4 {
 	fsl,spi-num-chipselects = <1>;
-	cs-gpios = <&gpio4 25 0>;
+	cs-gpios = <&gpio5 2 0>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi4>;
 	status = "okay";
 
-	flash: s25fl004k@0 {
+	flash: s25fl127s@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "st,s25fl004k";
-		spi-max-frequency = <20000000>;
+		compatible = "spansion,s25fl127s";
+		spi-max-frequency = <25000000>;
 		reg = <0>;
 	};
 };
@@ -435,12 +451,10 @@
 
                 pinctrl_ecspi4: ecspi4grp {
                         fsl,pins = <
-
         			MX6QDL_PAD_EIM_D22__ECSPI4_MISO			0x100b1
         			MX6QDL_PAD_EIM_D28__ECSPI4_MOSI			0x100b1
-        			MX6QDL_PAD_EIM_EB3__ECSPI4_RDY 			0x100b1
         			MX6QDL_PAD_EIM_D21__ECSPI4_SCLK			0x100b1
-        			MX6QDL_PAD_EIM_A25__ECSPI4_SS1 			0x100b1
+				MX6QDL_PAD_EIM_A25__GPIO5_IO02			0x000b1
 			>;
 		};
 
