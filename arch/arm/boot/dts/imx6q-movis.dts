@@ -436,7 +436,7 @@
 				MX6QDL_PAD_KEY_ROW1__GPIO4_IO09 		0x80000000
 				MX6QDL_PAD_NANDF_CS0__GPIO6_IO11                0x80000000
 				MX6QDL_PAD_NANDF_CLE__GPIO6_IO07                0x80000000   /* DNP */
-				MX6QDL_PAD_SD1_DAT3__WDOG2_B			0x80000000
+				MX6QDL_PAD_SD1_DAT3__WDOG2_B			0x100b1
 			>;
 		};
 
@@ -660,7 +660,7 @@
 &gpc {
 	/* use ldo-bypass, u-boot will check it and configure */
 	fsl,ldo-bypass = <1>;
-	fsl,wdog-reset = <1>;
+	fsl,wdog-reset = <2>;
 };
 
 /*&hdmi_audio {
