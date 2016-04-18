@@ -67,7 +67,7 @@
 	sound {
 		compatible = "fsl,imx6q-movis-sgtl5000", "fsl,imx-audio-sgtl5000";
 		model = "imx6q-movis-sgtl5000";
-		ssi-controller = <&ssi2>;
+		ssi-controller = <&ssi1>;
 		audio-codec = <&codec>;
 		audio-routing =
 			"MIC_IN", "Mic Jack",
@@ -509,7 +509,7 @@
 	status = "okay";
 };
 
-&ssi2 {
+&ssi1 {
 	status = "okay";
 };
 
