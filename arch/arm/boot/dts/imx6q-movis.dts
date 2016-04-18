@@ -220,9 +220,9 @@
 	codec: sgtl5000@0a {
 		compatible = "fsl,sgtl5000";
 		reg = <0x0a>;
-		clocks = <&clks 201>;
-		/*VDDA-supply = <&reg_audio>;
-		VDDIO-supply = <&reg_audio_vddio>;*/
+		clocks = <&clk25m>;
+		VDDA-supply = <&reg_3p3v>;
+		VDDIO-supply = <&reg_3p3v>;
 	};
 
 	pmic: pfuze100@08 {
