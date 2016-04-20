@@ -33,6 +33,14 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
+		reg_3p3v: 3p3v {
+			compatible = "regulator-fixed";
+			regulator-name = "3P3V";
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			regulator-always-on;
+		};
+
 		reg_usb_otg_vbus: regulator@0 {
 			compatible = "regulator-fixed";
 			reg = <0>;
@@ -59,7 +67,7 @@
 	sound {
 		compatible = "fsl,imx6q-movis-sgtl5000", "fsl,imx-audio-sgtl5000";
 		model = "imx6q-movis-sgtl5000";
-		ssi-controller = <&ssi2>;
+		ssi-controller = <&ssi1>;
 		audio-codec = <&codec>;
 		audio-routing =
 			"MIC_IN", "Mic Jack",
@@ -88,6 +96,14 @@
 			label = "Heartbeat";
 			gpios = <&gpio1 5 0>;
 			linux,default-trigger = "heartbeat";
+		};
+	};
+
+	clocks {
+		clk25m: clk25m {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <25000000>;
 		};
 	};
 };
@@ -204,9 +220,9 @@
 	codec: sgtl5000@0a {
 		compatible = "fsl,sgtl5000";
 		reg = <0x0a>;
-		clocks = <&clks 201>;
-		/*VDDA-supply = <&reg_audio>;
-		VDDIO-supply = <&reg_audio_vddio>;*/
+		clocks = <&clk25m>;
+		VDDA-supply = <&reg_3p3v>;
+		VDDIO-supply = <&reg_3p3v>;
 	};
 
 	pmic: pfuze100@08 {
@@ -493,7 +509,7 @@
 	status = "okay";
 };
 
-&ssi2 {
+&ssi1 {
 	status = "okay";
 };
 
