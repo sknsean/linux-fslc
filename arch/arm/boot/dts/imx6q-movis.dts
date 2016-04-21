@@ -104,6 +104,12 @@
 			gpios = <&gpio1 5 0>;
 			linux,default-trigger = "heartbeat";
 		};
+
+		5vreg {
+			label = "5vreg";
+			gpios = <&gpio4 7 0>;
+			default-state = "on";
+		};
 	};
 
 	clocks {
@@ -362,7 +368,6 @@
 		pinctrl_ecspi1: ecspi1grp {
 			fsl,pins = <
 				MX6QDL_PAD_KEY_COL1__ECSPI1_MISO	0x100b1
-				MX6QDL_PAD_KEY_ROW0__ECSPI1_MOSI	0x100b1
 				MX6QDL_PAD_KEY_COL0__ECSPI1_SCLK	0x100b1
 				MX6QDL_PAD_KEY_COL2__GPIO4_IO10		0x1b0b0
 			>;
@@ -495,6 +500,7 @@
 		pinctrl_gpio_leds: gpioledsgrp {
 			fsl,pins = <
 				MX6QDL_PAD_GPIO_5__GPIO1_IO05 0x1b0b0
+				MX6QDL_PAD_KEY_ROW0__GPIO4_IO07			0x100b1
 			>;
 		};
 	};
