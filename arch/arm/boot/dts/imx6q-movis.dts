@@ -62,6 +62,13 @@
 			enable-active-high;
 			vin-supply = <&swbst_reg>;
 		};
+
+		adc_supply: fixedregulator {
+			compatible = "regulator-fixed";
+			regulator-name = "fixed-supply";
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+		};
 	};
 
 	sound {
@@ -134,6 +141,7 @@
 		spi-max-frequency = <1000000>;
 		spi-cpha;
 		spi-cpol;
+		vcc-supply = <&adc_supply>;
 	};
 };
 
