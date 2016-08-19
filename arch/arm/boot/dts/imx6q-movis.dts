@@ -153,13 +153,11 @@
 	pinctrl-0 = <&pinctrl_ecspi1>;
 	status = "okay";
 
-	adc: ad7476a@0 {
-		compatible = "adi,ad7476a";
+	adc: adc128@0 {
+		compatible = "ti,adc128s052";
 		reg = <0>;
 		spi-max-frequency = <1000000>;
-		spi-cpha;
-		spi-cpol;
-		vcc-supply = <&adc_supply>;
+		vref-supply = <&adc_supply>;
 	};
 };
 
