@@ -154,7 +154,7 @@
 	status = "okay";
 
 	adc: adc128@0 {
-		compatible = "ti,adc128s052";
+		compatible = "ti,adc122s021";
 		reg = <0>;
 		spi-max-frequency = <1000000>;
 		vref-supply = <&adc_supply>;
