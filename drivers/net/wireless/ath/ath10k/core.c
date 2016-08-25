@@ -1904,6 +1904,8 @@ int ath10k_core_register(struct ath10k *ar, u32 chip_id)
 	ar->chip_id = chip_id;
 	queue_work(ar->workqueue, &ar->register_work);
 
+	flush_workqueue(ar->workqueue);
+
 	return 0;
 }
 EXPORT_SYMBOL(ath10k_core_register);
