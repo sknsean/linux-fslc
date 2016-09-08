@@ -167,6 +167,8 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_ecspi4>;
 	status = "okay";
+	/delete-property/dmas;
+	/delete-property/dma-names;
 
 	flash: s25fl127s@0 {
 		#address-cells = <1>;
