@@ -25,10 +25,12 @@
 #define ADS8688_CMD_REG(x)		(x << 8)
 #define ADS8688_CMD_REG_NOOP		0x00
 #define ADS8688_CMD_REG_RST		0x85
+#define ADS8688_CMD_REG_AUTO_RST	0xA0
 #define ADS8688_CMD_REG_MAN_CH(chan)	(0xC0 | (4 * chan))
 #define ADS8688_CMD_DONT_CARE_BITS	16
 
 #define ADS8688_PROG_REG(x)		(x << 9)
+#define ADS8688_AUTO_SEQ_EN		0x01
 #define ADS8688_PROG_REG_RANGE_CH(chan)	(0x05 + chan)
 #define ADS8688_PROG_WR_BIT		BIT(8)
 #define ADS8688_PROG_DONT_CARE_BITS	8
@@ -210,6 +212,39 @@ static int ads8688_reset(struct iio_dev *indio_dev)
 	return spi_write(st->spi, &st->data[0].d8[0], 4);
 }
 
+static int ads8688_start_autoseq(struct iio_dev *indio_dev)
+{
+	struct ads8688_state *st = iio_priv(indio_dev);
+	u32 tmp;
+
+	tmp = ADS8688_CMD_REG(ADS8688_CMD_REG_AUTO_RST);
+	tmp <<= ADS8688_CMD_DONT_CARE_BITS;
+	st->data[0].d32 = cpu_to_be32(tmp);
+
+	return spi_write(st->spi, &st->data[0].d8[0], 4);
+}
+
+static int ads8688_read_autoseq(struct iio_dev *indio_dev)
+{
+	struct ads8688_state *st = iio_priv(indio_dev);
+	int ret;
+	u32 tmp;
+	struct spi_transfer t = {
+		.tx_buf = &st->data[0].d8[0],
+		.len = 4,
+	};
+
+	tmp = ADS8688_CMD_REG(ADS8688_CMD_REG_NOOP);
+	tmp <<= ADS8688_CMD_DONT_CARE_BITS;
+	st->data[0].d32 = cpu_to_be32(tmp);
+
+	ret = spi_sync_transfer(st->spi, &t, 1);
+	if (ret < 0)
+		return ret;
+
+	return be32_to_cpu(st->data[0].d32) & 0xffff;
+}
+
 static int ads8688_read(struct iio_dev *indio_dev, unsigned int chan)
 {
 	struct ads8688_state *st = iio_priv(indio_dev);
@@ -250,6 +285,10 @@ static int ads8688_read_raw(struct iio_dev *indio_dev,
 	unsigned long scale_mv;
 
 	struct ads8688_state *st = iio_priv(indio_dev);
+
+	/* Block raw reading when in triggered mode */
+	if (iio_buffer_enabled(indio_dev))
+		return -EBUSY;
 
 	mutex_lock(&st->lock);
 	switch (m) {
@@ -298,6 +337,10 @@ static int ads8688_write_raw(struct iio_dev *indio_dev,
 	struct ads8688_state *st = iio_priv(indio_dev);
 	unsigned int scale = 0;
 	int ret = -EINVAL, i, offset = 0;
+
+	/* Block setup when in triggered mode */
+	if (iio_buffer_enabled(indio_dev))
+		return -EBUSY;
 
 	mutex_lock(&st->lock);
 	switch (mask) {
@@ -374,10 +417,25 @@ static int ads8688_write_raw_get_fmt(struct iio_dev *indio_dev,
 	return -EINVAL;
 }
 
+static int ads8688_update_scan_mode(struct iio_dev *indio_dev,
+	const unsigned long *active_scan_mask)
+{
+	int scan_count;
+
+	scan_count = bitmap_weight(active_scan_mask, indio_dev->masklength);
+
+	ads8688_prog_write(indio_dev, ADS8688_AUTO_SEQ_EN, (int)active_scan_mask);
+
+	ads8688_start_autoseq(indio_dev);
+
+	return 0;
+}
+
 static const struct iio_info ads8688_info = {
 	.read_raw = &ads8688_read_raw,
 	.write_raw = &ads8688_write_raw,
 	.write_raw_get_fmt = &ads8688_write_raw_get_fmt,
+	.update_scan_mode = ads8688_update_scan_mode,
 	.attrs = &ads8688_attribute_group,
 	.driver_module = THIS_MODULE,
 };
@@ -392,7 +450,7 @@ static irqreturn_t ads8688_trigger_handler(int irq, void *p)
 	for (i = 0; i < indio_dev->masklength; i++) {
 		if (!test_bit(i, indio_dev->active_scan_mask))
 			continue;
-		buffer[j] = ads8688_read(indio_dev, i);
+		buffer[j] = ads8688_read_autoseq(indio_dev);
 		j++;
 	}
 
